@@ -18,6 +18,11 @@ class Piece:
         self.has_moved = True
 
     def valid_moves(self, board):
+        """
+        Checks board for all valid moves for current piece
+        :param board:
+        :return: (List[(x, y)]) List of all valid moves (x: int, y: int)
+        """
         raise NotImplementedError("This method should be overwritten in subclasses")
 
     @staticmethod
@@ -38,7 +43,7 @@ class Pawn(Piece):
         super().__init__(position, colour, sprite_path)
         self.direction = 1 if self.colour == "BLACK" else -1
 
-    def valid_moves(self, board: List[List[Union[Piece, None]]]):
+    def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple]:
         moves = []
         x, y = self.position
 
@@ -63,3 +68,87 @@ class Pawn(Piece):
         # Add en passant.
 
         # PROMOTION WILL BE HANDLED WITHIN BOARD
+
+        return moves
+
+
+class Rook(Piece):
+    def __init__(self, position, colour):
+        sprite_path = get_piece_asset_path(colour, 'Rook')
+        super().__init__(position, colour, sprite_path)
+
+    def valid_moves(self, board):
+        moves = []
+        x, y = self.position
+
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        new_x, new_y = x, y
+        for dx, dy in directions:
+
+            while True:
+                new_x += dx
+                new_y += dy
+
+                if not self.is_in_bounds(new_x, new_y):
+                    break
+
+                if board[new_x][new_y] is None:
+                    moves.append((new_x, new_y))
+                elif board[new_x][new_y].colour != self.colour:
+                    moves.append((new_x, new_y))
+                    break
+                else:
+                    break
+
+        return moves
+
+
+class Knight(Piece):
+    def __init__(self, position, colour):
+        sprite_path = get_piece_asset_path(colour, "Knight")
+        super().__init__(position, colour, sprite_path)
+
+    def valid_moves(self, board):
+        moves = []
+        x, y = self.position
+        jumps = [(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
+
+        for dx, dy in jumps:
+            new_x = x + dx
+            new_y = y + dy
+
+            if not self.is_in_bounds(new_x, new_y):
+                continue
+            elif board[new_x][new_y].colour != self.colour:
+                moves.append((new_x, new_y))
+
+        return moves
+
+
+class Bishop(Piece):
+    def __init__(self, position, colour):
+        sprite_path = get_piece_asset_path(colour, "Bishop")
+        super().__init__(position, colour, sprite_path)
+
+    def valid_moves(self, board):
+        moves = []
+        x, y = self.position
+
+        directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for dx, dy in directions:
+
+
+if __name__ == "__main__":
+    # Example of initializing Pygame and a pawn
+    pygame.init()
+    screen = pygame.display.set_mode((512, 512))  # Example window size
+
+    white_pawn = Pawn((6, 4), 'white')
+    white_pawn.valid_moves()
+
+    # Blit the pawn's image onto the screen
+    screen.blit(white_pawn.sprite, (64 * 4, 64 * 6))  # 4th file, 6th rank (0-indexed)
+
+    pygame.display.flip()
