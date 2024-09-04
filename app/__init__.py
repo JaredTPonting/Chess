@@ -1,6 +1,17 @@
 import os
 
 
+def get_board_asset_path():
+    """
+    Gets asset for board
+    :return:
+    """
+    # Get the absolute path to the directory containing main.py
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_path, "gui", "assets", "boards", "board_plain_01.png")
+
+
 def get_piece_asset_path(colour: str, piece: str):
     """
     Grabs png asset for given piece.
