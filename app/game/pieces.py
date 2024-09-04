@@ -7,11 +7,12 @@ import os
 
 
 class Piece:
-    def __init__(self, position, colour, sprite_path):
+    def __init__(self, position, colour, sprite_path, square_size):
         self.position = position
         self.colour = colour
-        self.sprite = pygame.image.load(sprite_path)
         self.has_moved = False
+        self.square_size = square_size
+        self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (square_size, square_size))
 
     def move(self, new_position):
         self.position = new_position
@@ -47,9 +48,9 @@ class Piece:
 
 
 class Pawn(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, 'Pawn')
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
         self.direction = 1 if self.colour == "BLACK" else -1
 
     def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple]:
@@ -88,9 +89,9 @@ class Pawn(Piece):
 
 
 class Rook(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, 'Rook')
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
 
     def valid_moves(self, board):
         moves = []
@@ -120,9 +121,9 @@ class Rook(Piece):
 
 
 class Knight(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, "Knight")
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
 
     def valid_moves(self, board):
         moves = []
@@ -142,9 +143,9 @@ class Knight(Piece):
 
 
 class Bishop(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, "Bishop")
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
 
     def valid_moves(self, board):
         moves = []
@@ -176,9 +177,9 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, "Queen")
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
 
     def valid_moves(self, board):
         moves = []
@@ -208,9 +209,9 @@ class Queen(Piece):
 
 
 class King(Piece):
-    def __init__(self, position, colour):
+    def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, "King")
-        super().__init__(position, colour, sprite_path)
+        super().__init__(position, colour, sprite_path, square_size)
 
     def position_is_check(self, board, new_position):
         for row in board:
