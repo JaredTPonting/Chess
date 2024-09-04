@@ -25,6 +25,15 @@ class Piece:
         """
         raise NotImplementedError("This method should be overwritten in subclasses")
 
+    def can_attack(self, board, target_position):
+        """
+        Checks whether piece can attack target position
+        :param board:
+        :param target_position: (x: int, y: int)
+        :return:
+        """
+        return target_position in self.valid_moves(board)
+
     @staticmethod
     def is_in_bounds(x: int, y: int) -> bool:
         """
@@ -65,11 +74,17 @@ class Pawn(Piece):
                 if board[next_x][next_y].colour != self.colour:
                     moves.append((next_x, next_y))
 
-        # Add en passant.
-
-        # PROMOTION WILL BE HANDLED WITHIN BOARD
+        # TODO: add enpassant to this method
 
         return moves
+
+    def can_attack(self, board, target_position):
+        # TODO: add enpassant to this method
+
+        x, y = self.position
+        tx, ty = target_position
+        return (tx == x + self.direction and (ty == y + 1 or ty == y - 1) and board[tx][ty] is not None and board[tx][
+            ty].colour != self.colour)
 
 
 class Rook(Piece):
@@ -154,6 +169,9 @@ class Bishop(Piece):
                     break
                 else:
                     break
+
+        # if not self.has_moved:
+
         return moves
 
 
@@ -199,6 +217,15 @@ class King(Piece):
         sprite_path = get_piece_asset_path(colour, "King")
         super().__init__(position, colour, sprite_path)
 
+    def position_is_check(self, board, new_position):
+        for row in board:
+            for piece in row:
+                if piece is not None and piece.colour != self.colour:
+                    if piece.can_attack(board, new_position):
+                        return True
+
+        return False
+
     def valid_moves(self, board):
         moves = []
         x, y = self.position
@@ -209,13 +236,14 @@ class King(Piece):
             new_x = x + dx
             new_y = y + dy
 
-            if not self.is_in_bounds(new_x, new_y):
+            if (not self.is_in_bounds(new_x, new_y)) or self.position_is_check(board, (new_x, new_y)):
                 continue
-            elif board[new_x][new_y].colour != self.colour:
+            elif board[new_x][new_y].colour != self.colour or board[new_x][new_y] is None:
                 moves.append((new_x, new_y))
 
-        return moves
+        # TODO: add castling functionality
 
+        return moves
 
 
 if __name__ == "__main__":
