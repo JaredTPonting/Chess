@@ -180,11 +180,6 @@ class Queen(Piece):
         sprite_path = get_piece_asset_path(colour, "Queen")
         super().__init__(position, colour, sprite_path)
 
-    def in_check(self, board):
-        x, y = self.position
-
-        return False
-
     def valid_moves(self, board):
         moves = []
         x, y = self.position
