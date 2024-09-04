@@ -157,6 +157,38 @@ class Bishop(Piece):
         return moves
 
 
+class Queen(Piece):
+    def __init__(self, position, colour):
+        sprite_path = get_piece_asset_path(colour, "Queen")
+        super().__init__(position, colour, sprite_path)
+
+    def valid_moves(self, board):
+        moves = []
+        x, y = self.position
+
+        directions = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        for dx, dy in directions:
+            new_x, new_y = x, y
+
+            while True:
+                new_x += dx
+                new_y += dy
+
+                if not self.is_in_bounds(new_x, new_y):
+                    break
+
+                if board[new_x][new_y] is None:
+                    moves.append((new_x, new_y))
+                elif board[new_x][new_y].colour != self.colour:
+                    moves.append((new_x, new_y))
+                    break
+                else:
+                    break
+
+        return moves
+
+
 if __name__ == "__main__":
     # Example of initializing Pygame and a pawn
     pygame.init()
