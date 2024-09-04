@@ -162,6 +162,11 @@ class Queen(Piece):
         sprite_path = get_piece_asset_path(colour, "Queen")
         super().__init__(position, colour, sprite_path)
 
+    def in_check(self, board):
+        x, y = self.position
+
+        return False
+
     def valid_moves(self, board):
         moves = []
         x, y = self.position
@@ -178,15 +183,39 @@ class Queen(Piece):
                 if not self.is_in_bounds(new_x, new_y):
                     break
 
-                if board[new_x][new_y] is None:
+                if board[new_x][new_y] is None and not self.in_check():
                     moves.append((new_x, new_y))
-                elif board[new_x][new_y].colour != self.colour:
+                elif board[new_x][new_y].colour != self.colour and not self.in_check():
                     moves.append((new_x, new_y))
                     break
                 else:
                     break
 
         return moves
+
+
+class King(Piece):
+    def __init__(self, position, colour):
+        sprite_path = get_piece_asset_path(colour, "King")
+        super().__init__(position, colour, sprite_path)
+
+    def valid_moves(self, board):
+        moves = []
+        x, y = self.position
+
+        steps = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        for dx, dy in steps:
+            new_x = x + dx
+            new_y = y + dy
+
+            if not self.is_in_bounds(new_x, new_y):
+                continue
+            elif board[new_x][new_y].colour != self.colour:
+                moves.append((new_x, new_y))
+
+        return moves
+
 
 
 if __name__ == "__main__":
