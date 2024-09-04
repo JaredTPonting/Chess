@@ -137,7 +137,23 @@ class Bishop(Piece):
 
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
+        new_x, new_y = x, y
         for dx, dy in directions:
+            while True:
+                new_x += dx
+                new_y += dy
+
+                if not self.is_in_bounds(new_x, new_y):
+                    break
+
+                if board[new_x][new_y] is None:
+                    moves.append((new_x, new_y))
+                elif board[new_x][new_y].colour != self.colour:
+                    moves.append((new_x, new_y))
+                    break
+                else:
+                    break
+        return moves
 
 
 if __name__ == "__main__":
