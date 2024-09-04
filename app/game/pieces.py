@@ -83,8 +83,8 @@ class Rook(Piece):
 
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-        new_x, new_y = x, y
         for dx, dy in directions:
+            new_x, new_y = x, y
 
             while True:
                 new_x += dx
@@ -137,8 +137,9 @@ class Bishop(Piece):
 
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-        new_x, new_y = x, y
         for dx, dy in directions:
+            new_x, new_y = x, y
+
             while True:
                 new_x += dx
                 new_y += dy
