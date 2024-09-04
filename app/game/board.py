@@ -14,7 +14,8 @@ class Board:
 
     def setup_board(self):
         for i in range(8):
-            self.grid[1][i] = Pawn((1, i), "BLACK", "")
+            self.grid[1][i] = Pawn(position=(1, i), colour="BLACK")
+            self.grid[6][i] = Pawn(position=(6, i), colour="WHITE")
 
         pass
 
