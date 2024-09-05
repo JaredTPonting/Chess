@@ -8,11 +8,19 @@ import os
 
 class Piece:
     def __init__(self, position, colour, sprite_path, square_size):
+        self.actual_y = None
+        self.actual_x = None
         self.position = position
         self.colour = colour
         self.has_moved = False
         self.square_size = square_size
-        self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (square_size, square_size))
+        self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (0.5 * square_size, square_size))
+
+    def render(self, screen, position):
+        piece_x, piece_y = position
+        self.actual_x = position[0]
+        self.actual_y = position[1]
+        screen.blit(self.sprite, (piece_y, piece_x))
 
     def move(self, new_position):
         self.position = new_position
@@ -22,7 +30,7 @@ class Piece:
         """
         Checks board for all valid moves for current piece
         :param board:
-        :return: (List[(x, y)]) List of all valid moves (x: int, y: int)
+        :return: (List[(ROW, COL)]) List of all valid moves (ROW: int, COL: int)
         """
         raise NotImplementedError("This method should be overwritten in subclasses")
 
@@ -44,7 +52,7 @@ class Piece:
         :param y: Potential Y position of Piece
         :return:  (bool) True if position is in bounds
         """
-        return 0 <= x <= 8 and 0 <= y <= 8
+        return 0 <= x < 8 and 0 <= y < 8
 
 
 class Pawn(Piece):
@@ -55,25 +63,25 @@ class Pawn(Piece):
 
     def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple]:
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
 
         # Move PAWN one square forward
-        next_x = x + self.direction
-        if self.is_in_bounds(next_x, y) and board[next_x][y] is None:
-            moves.append((next_x, y))
+        next_ROW = ROW + self.direction
+        if self.is_in_bounds(next_ROW, COL) and board[next_ROW][COL] is None:
+            moves.append((next_ROW, COL))
 
         # First move only. Move PAWN two squares forward
         if not self.has_moved:
-            next_2_x = next_x + self.direction
-            if self.is_in_bounds(next_2_x, y) and board[next_2_x][y] is None:
-                moves.append((next_2_x, y))
+            next_2_ROW = next_ROW + self.direction
+            if self.is_in_bounds(next_2_ROW, COL) and board[next_2_ROW][COL] is None:
+                moves.append((next_2_ROW, COL))
 
         # Capture Moves
-        for dy in [-1, 1]:
-            next_y = y + dy
-            if self.is_in_bounds(next_x, next_y) and board[next_x][next_y] is not None:
-                if board[next_x][next_y].colour != self.colour:
-                    moves.append((next_x, next_y))
+        for dcol in [-1, 1]:
+            next_COL = COL + dcol
+            if self.is_in_bounds(next_ROW, next_COL) and board[next_ROW][next_COL] is not None:
+                if board[next_ROW][next_COL].colour != self.colour:
+                    moves.append((next_ROW, next_COL))
 
         # TODO: add enpassant to this method
 
@@ -82,10 +90,11 @@ class Pawn(Piece):
     def can_attack(self, board, target_position):
         # TODO: add enpassant to this method
 
-        x, y = self.position
-        tx, ty = target_position
-        return (tx == x + self.direction and (ty == y + 1 or ty == y - 1) and board[tx][ty] is not None and board[tx][
-            ty].colour != self.colour)
+        ROW, COL = self.position
+        trow, tcol = target_position
+        return (trow == ROW + self.direction and (tcol == COL + 1 or tcol == COL - 1) and board[trow][
+            tcol] is not None and board[trow][
+                    tcol].colour != self.colour)
 
 
 class Rook(Piece):
@@ -95,24 +104,24 @@ class Rook(Piece):
 
     def valid_moves(self, board):
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
 
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-        for dx, dy in directions:
-            new_x, new_y = x, y
+        for drow, dcol in directions:
+            new_row, new_col = ROW, COL
 
             while True:
-                new_x += dx
-                new_y += dy
+                new_row += drow
+                new_col += dcol
 
-                if not self.is_in_bounds(new_x, new_y):
+                if not self.is_in_bounds(new_row, new_col):
                     break
 
-                if board[new_x][new_y] is None:
-                    moves.append((new_x, new_y))
-                elif board[new_x][new_y].colour != self.colour:
-                    moves.append((new_x, new_y))
+                if board[new_row][new_col] is None:
+                    moves.append((new_row, new_col))
+                elif board[new_row][new_col].colour != self.colour:
+                    moves.append((new_row, new_col))
                     break
                 else:
                     break
@@ -127,17 +136,19 @@ class Knight(Piece):
 
     def valid_moves(self, board):
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
         jumps = [(2, -1), (2, 1), (-2, -1), (-2, 1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
 
-        for dx, dy in jumps:
-            new_x = x + dx
-            new_y = y + dy
+        for drow, dcol in jumps:
+            new_row = ROW + drow
+            new_col = COL + dcol
 
-            if not self.is_in_bounds(new_x, new_y):
+            if not self.is_in_bounds(new_row, new_col):
                 continue
-            elif board[new_x][new_y].colour != self.colour:
-                moves.append((new_x, new_y))
+            elif board[new_row][new_col] is None:
+                moves.append((new_row, new_col))
+            elif board[new_row][new_col].colour != self.colour:
+                moves.append((new_row, new_col))
 
         return moves
 
@@ -149,24 +160,24 @@ class Bishop(Piece):
 
     def valid_moves(self, board):
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
 
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-        for dx, dy in directions:
-            new_x, new_y = x, y
+        for drow, dcol in directions:
+            new_row, new_col = ROW, COL
 
             while True:
-                new_x += dx
-                new_y += dy
+                new_row += drow
+                new_col += dcol
 
-                if not self.is_in_bounds(new_x, new_y):
+                if not self.is_in_bounds(new_row, new_col):
                     break
 
-                if board[new_x][new_y] is None:
-                    moves.append((new_x, new_y))
-                elif board[new_x][new_y].colour != self.colour:
-                    moves.append((new_x, new_y))
+                if board[new_row][new_col] is None:
+                    moves.append((new_row, new_col))
+                elif board[new_row][new_col].colour != self.colour:
+                    moves.append((new_row, new_col))
                     break
                 else:
                     break
@@ -183,24 +194,24 @@ class Queen(Piece):
 
     def valid_moves(self, board):
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
 
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
 
-        for dx, dy in directions:
-            new_x, new_y = x, y
+        for drow, dcol in directions:
+            new_row, new_col = ROW, COL
 
             while True:
-                new_x += dx
-                new_y += dy
+                new_row += drow
+                new_col += dcol
 
-                if not self.is_in_bounds(new_x, new_y):
+                if not self.is_in_bounds(new_row, new_col):
                     break
 
-                if board[new_x][new_y] is None and not self.in_check():
-                    moves.append((new_x, new_y))
-                elif board[new_x][new_y].colour != self.colour and not self.in_check():
-                    moves.append((new_x, new_y))
+                if board[new_row][new_col] is None:
+                    moves.append((new_row, new_col))
+                elif board[new_row][new_col].colour != self.colour:
+                    moves.append((new_row, new_col))
                     break
                 else:
                     break
@@ -222,20 +233,37 @@ class King(Piece):
 
         return False
 
+    def can_attack(self, board, target_position):
+        moves = []
+        ROW, COL = self.position
+        steps = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        for dRow, dCol in steps:
+            new_row = ROW + dRow
+            new_col = COL + dCol
+            if not self.is_in_bounds(new_row, new_col):
+                continue
+            else:
+                moves.append((new_row, new_col))
+
+        return target_position in moves
+
     def valid_moves(self, board):
         moves = []
-        x, y = self.position
+        ROW, COL = self.position
 
         steps = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
 
-        for dx, dy in steps:
-            new_x = x + dx
-            new_y = y + dy
+        for drow, dcol in steps:
+            new_row = ROW + drow
+            new_col = COL + dcol
 
-            if (not self.is_in_bounds(new_x, new_y)) or self.position_is_check(board, (new_x, new_y)):
+            if (not self.is_in_bounds(new_row, new_col)) or self.position_is_check(board, (new_row, new_col)):
                 continue
-            elif board[new_x][new_y].colour != self.colour or board[new_x][new_y] is None:
-                moves.append((new_x, new_y))
+            elif board[new_row][new_col] is None:
+                moves.append((new_row, new_col))
+            elif board[new_row][new_col].colour != self.colour:
+                moves.append((new_row, new_col))
 
         # TODO: add castling functionality
 
