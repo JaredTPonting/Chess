@@ -46,6 +46,8 @@ def main():
                 piece = game_board.get_piece_at(mouse_x, mouse_y)
 
                 if piece:
+                    if piece.colour != game_board.turn:
+                        continue
                     game_board.selected_piece = piece
                     selected_piece = piece
 
@@ -84,6 +86,7 @@ def main():
             adjusted_y = mouse_y - mouse_offset[1]
 
             selected_piece.render(screen, (adjusted_x, adjusted_y))
+            game_board.turn = "BLACK" if game_board.turn == "WHITE" else "WHITE"
 
         pygame.display.flip()
 
