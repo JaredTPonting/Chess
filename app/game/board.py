@@ -78,6 +78,10 @@ class Board:
         for piece in self.pieces:
             self.board[piece.position[0]][piece.position[1]] = piece
 
+    @staticmethod
+    def is_in_bounds(x: int, y: int):
+        return 0 <= x <= 8 and 0 <= y <= 8
+
     def move_piece(self, piece, new_position):
         pass
 
@@ -94,7 +98,14 @@ class Board:
             piece_y = self.board_start_y + (piece_y * self.square_size_y) + (self.square_size_y * 0.25)
 
             # Draw piece on board
-            screen.blit(piece.sprite, (piece_y, piece_x))
+            piece.render(screen, (piece_y, piece_x))
+
+    def get_piece_at(self, mouse_x, mouse_y):
+        board_x = (mouse_x - self.board_start_x) // self.square_size_x
+        board_y = (mouse_y - self.board_start_y) // self.square_size_y
+
+        if self.is_in_bounds(board_x, board_y):
+            return self.board[board_y][board_x]
 
     def handle_click(self, position):
         pass
