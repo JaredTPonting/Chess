@@ -68,12 +68,12 @@ class Board:
         self.pieces.append(Bishop((7, 5), 'WHITE', square_size=self.square_size_x))
 
         # Set up Queens
-        self.pieces.append(Queen((0, 3), 'black', square_size=self.square_size_x))
-        self.pieces.append(Queen((7, 3), 'white', square_size=self.square_size_x))
+        self.pieces.append(Queen((0, 3), 'BLACK', square_size=self.square_size_x))
+        self.pieces.append(Queen((7, 3), 'WHITE', square_size=self.square_size_x))
 
         # Set up Kings
-        self.pieces.append(King((0, 4), 'black', square_size=self.square_size_x))
-        self.pieces.append(King((7, 4), 'white', square_size=self.square_size_x))
+        self.pieces.append(King((0, 4), 'BLACK', square_size=self.square_size_x))
+        self.pieces.append(King((7, 4), 'WHITE', square_size=self.square_size_x))
 
         for piece in self.pieces:
             self.board[piece.position[0]][piece.position[1]] = piece
@@ -84,7 +84,13 @@ class Board:
 
     def move_piece(self, piece, new_position):
         print(f"MOVING: {piece.__class__.__name__}")
-        pass
+
+        old_position = piece.position
+        piece.position = new_position
+        piece.has_moved = True
+        self.board[old_position[0]][old_position[1]] = None
+        self.board[new_position[0]][new_position[1]] = piece
+        self.pieces = [playing_piece for row in self.board for playing_piece in row if playing_piece is not None]
 
     def render(self, screen):
         # Draw board
