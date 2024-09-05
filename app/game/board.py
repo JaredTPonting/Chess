@@ -108,7 +108,7 @@ class Board:
         board_y = (mouse_y - self.board_start_y) // self.square_size_y
 
         if self.is_in_bounds(board_x, board_y):
-            return self.board[int(board_y)][int(board_x)]
+            return self.board[int(board_x)][int(board_y)]
 
     def is_valid_move(self, piece, position):
         valid_moves = piece.valid_moves(self.board)
