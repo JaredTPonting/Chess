@@ -207,7 +207,7 @@ class Queen(Piece):
                 if not self.is_in_bounds(new_row, new_col):
                     break
 
-                if board[new_row][new_col] is None and not self.in_check():
+                if board[new_row][new_col] is None:
                     moves.append((new_row, new_col))
                 elif board[new_row][new_col].colour != self.colour:
                     moves.append((new_row, new_col))
