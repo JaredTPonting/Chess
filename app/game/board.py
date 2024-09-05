@@ -80,9 +80,10 @@ class Board:
 
     @staticmethod
     def is_in_bounds(x: int, y: int):
-        return 0 <= x <= 8 and 0 <= y <= 8
+        return 0 <= x < 8 and 0 <= y < 8
 
     def move_piece(self, piece, new_position):
+        print(f"MOVING: {piece.__class__.__name__}")
         pass
 
     def render(self, screen):
@@ -100,7 +101,7 @@ class Board:
             piece_y = self.board_start_y + (piece_y * self.square_size_y) + (self.square_size_y * 0.25)
 
             # Draw piece on board
-            piece.render(screen, (piece_y, piece_x))
+            piece.render(screen, (piece_x, piece_y))
 
     def get_piece_at(self, mouse_x, mouse_y):
         board_x = (mouse_x - self.board_start_x) // self.square_size_x
