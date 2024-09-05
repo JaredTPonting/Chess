@@ -91,6 +91,8 @@ class Board:
 
         # Draw each piece
         for piece in self.pieces:
+            if self.selected_piece and piece == self.selected_piece:
+                continue
             piece_x, piece_y = piece.position
 
             # Adjust position to fit within board (excluding boarder)
@@ -105,7 +107,11 @@ class Board:
         board_y = (mouse_y - self.board_start_y) // self.square_size_y
 
         if self.is_in_bounds(board_x, board_y):
-            return self.board[board_y][board_x]
+            return self.board[int(board_y)][int(board_x)]
+
+    def is_valid_move(self, piece, position):
+        valid_moves = piece.valid_moves(self.board)
+        return position in valid_moves
 
     def handle_click(self, position):
         pass
