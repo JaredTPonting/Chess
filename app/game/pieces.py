@@ -92,8 +92,9 @@ class Pawn(Piece):
 
         ROW, COL = self.position
         trow, tcol = target_position
-        return (trow == ROW + self.direction and (tcol == COL + 1 or tcol == COL - 1) and board[trow][tcol] is not None and board[trow][
-            tcol].colour != self.colour)
+        return (trow == ROW + self.direction and (tcol == COL + 1 or tcol == COL - 1) and board[trow][
+            tcol] is not None and board[trow][
+                    tcol].colour != self.colour)
 
 
 class Rook(Piece):
@@ -232,6 +233,21 @@ class King(Piece):
 
         return False
 
+    def can_attack(self, board, target_position):
+        moves = []
+        ROW, COL = self.position
+        steps = [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        for dRow, dCol in steps:
+            new_row = ROW + dRow
+            new_col = COL + dCol
+            if not self.is_in_bounds(new_row, new_col):
+                continue
+            else:
+                moves.append((new_row, new_col))
+
+        return target_position in moves
+
     def valid_moves(self, board):
         moves = []
         ROW, COL = self.position
@@ -244,7 +260,9 @@ class King(Piece):
 
             if (not self.is_in_bounds(new_row, new_col)) or self.position_is_check(board, (new_row, new_col)):
                 continue
-            elif board[new_row][new_col].colour != self.colour or board[new_row][new_col] is None:
+            elif board[new_row][new_col] is None:
+                moves.append((new_row, new_col))
+            elif board[new_row][new_col].colour != self.colour:
                 moves.append((new_row, new_col))
 
         # TODO: add castling functionality
