@@ -8,6 +8,8 @@ import os
 
 class Piece:
     def __init__(self, position, colour, sprite_path, square_size):
+        self.actual_y = None
+        self.actual_x = None
         self.position = position
         self.colour = colour
         self.has_moved = False
@@ -16,7 +18,9 @@ class Piece:
 
     def render(self, screen, position):
         piece_x, piece_y = position
-        screen.blit(self.sprite, (piece_x, piece_y))
+        self.actual_x = position[0]
+        self.actual_y = position[1]
+        screen.blit(self.sprite, (piece_y, piece_x))
 
     def move(self, new_position):
         self.position = new_position
@@ -48,7 +52,7 @@ class Piece:
         :param y: Potential Y position of Piece
         :return:  (bool) True if position is in bounds
         """
-        return 0 <= x <= 8 and 0 <= y <= 8
+        return 0 <= x < 8 and 0 <= y < 8
 
 
 class Pawn(Piece):
@@ -140,6 +144,8 @@ class Knight(Piece):
 
             if not self.is_in_bounds(new_x, new_y):
                 continue
+            elif board[new_x][new_y] is None:
+                moves.append((new_x, new_y))
             elif board[new_x][new_y].colour != self.colour:
                 moves.append((new_x, new_y))
 
@@ -203,7 +209,7 @@ class Queen(Piece):
 
                 if board[new_x][new_y] is None and not self.in_check():
                     moves.append((new_x, new_y))
-                elif board[new_x][new_y].colour != self.colour and not self.in_check():
+                elif board[new_x][new_y].colour != self.colour:
                     moves.append((new_x, new_y))
                     break
                 else:
