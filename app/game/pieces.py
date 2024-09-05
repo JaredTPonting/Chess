@@ -12,7 +12,7 @@ class Piece:
         self.colour = colour
         self.has_moved = False
         self.square_size = square_size
-        self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (square_size, square_size))
+        self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (0.5 * square_size, square_size))
 
     def move(self, new_position):
         self.position = new_position
