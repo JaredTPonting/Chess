@@ -14,6 +14,10 @@ class Piece:
         self.square_size = square_size
         self.sprite = pygame.transform.scale(pygame.image.load(sprite_path), (0.5 * square_size, square_size))
 
+    def render(self, screen, position):
+        piece_x, piece_y = position
+        screen.blit(self.sprite, (piece_x, piece_y))
+
     def move(self, new_position):
         self.position = new_position
         self.has_moved = True
