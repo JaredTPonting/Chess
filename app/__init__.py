@@ -23,7 +23,7 @@ def get_piece_asset_path(colour: str, piece: str):
     base_path = os.path.dirname(os.path.abspath(__file__))
 
     # Create filename of piece
-    colour_initial = colour[0]
+    colour_initial = colour.value[0]
     filename = colour_initial + '_' + piece + '.png'
 
     # Construct the full path to the asset file in the gui/assets directory
