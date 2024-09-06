@@ -1,4 +1,5 @@
 import os
+from game import Colour
 
 
 def get_board_asset_path():
@@ -12,7 +13,7 @@ def get_board_asset_path():
     return os.path.join(base_path, "gui", "assets", "boards", "board_plain_01.png")
 
 
-def get_piece_asset_path(colour: str, piece: str):
+def get_piece_asset_path(colour: Colour, piece: str):
     """
     Grabs png asset for given piece.
     :param colour: (str) Colour of piece (WHITE or BLACK)
@@ -28,8 +29,3 @@ def get_piece_asset_path(colour: str, piece: str):
 
     # Construct the full path to the asset file in the gui/assets directory
     return os.path.join(base_path, 'gui', 'assets', '16x32 pieces', filename)
-
-
-if __name__ == '__main__':
-    path = get_piece_asset_path('BLACK', 'Pawn')
-    print(path)
