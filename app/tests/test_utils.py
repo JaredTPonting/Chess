@@ -1,8 +1,9 @@
 from app import get_piece_asset_path, get_board_asset_path
+from app.game import Colour
 
 
 def test_get_piece_asset_path():
-    path = get_piece_asset_path('Black', 'Pawn')
+    path = get_piece_asset_path(Colour.BLACK, 'Pawn')
     assert path == "C:\\Users\\Jared\\Documents\\Projects\\python\\chess\\app\\gui\\assets\\16x32 pieces\\B_Pawn.png"
 
 
