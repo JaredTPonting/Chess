@@ -22,6 +22,7 @@ class King(Piece):
                         board[new_position[0]][new_position[1]] = original_piece
                         return True
 
+        # Revert board back to original
         board[self.position[0]][self.position[1]] = self
         board[new_position[0]][new_position[1]] = original_piece
         return False
@@ -41,7 +42,7 @@ class King(Piece):
 
         return target_position in moves
 
-    def valid_moves(self, board):
+    def valid_moves(self, board) -> list:
         moves = []
         ROW, COL = self.position
 

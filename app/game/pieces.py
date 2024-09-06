@@ -25,23 +25,16 @@ class Piece(ABC):
             self.sprite = None
 
     def render(self, screen, position):
+        """Renders piece"""
         piece_x, piece_y = position
         self.actual_x = position[0]
         self.actual_y = position[1]
         screen.blit(self.sprite, (piece_y, piece_x))
 
     def move(self, new_position: tuple[int, int]):
+        """updates pieces position when moved"""
         self.position = new_position
         self.has_moved = True
-
-    @abstractmethod
-    def valid_moves(self, board):
-        """
-        Checks board for all valid moves for current piece
-        :param board:
-        :return: (List[(ROW, COL)]) List of all valid moves (ROW: int, COL: int)
-        """
-        raise NotImplementedError("This method should be overwritten in subclasses")
 
     def can_attack(self, board, target_position):
         """
@@ -51,6 +44,15 @@ class Piece(ABC):
         :return:
         """
         return target_position in self.valid_moves(board)
+
+    @abstractmethod
+    def valid_moves(self, board):
+        """
+        Checks board for all valid moves for current piece
+        :param board:
+        :return: (List[(ROW, COL)]) List of all valid moves (ROW: int, COL: int)
+        """
+        raise NotImplementedError("This method should be overwritten in subclasses")
 
     @staticmethod
     def is_in_bounds(x: int, y: int) -> bool:
@@ -62,24 +64,6 @@ class Piece(ABC):
         :return:  (bool) True if position is in bounds
         """
         return 0 <= x < 8 and 0 <= y < 8
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

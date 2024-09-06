@@ -83,6 +83,11 @@ def main():
             adjusted_y = mouse_y - mouse_offset[1]
 
             selected_piece.render(screen, (adjusted_x, adjusted_y))
+
+        if game_board.is_game_over():
+            pygame.quit()
+            sys.exit()
+
         pygame.display.flip()
 
 

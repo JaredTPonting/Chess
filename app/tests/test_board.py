@@ -147,3 +147,106 @@ def test_is_valid_move(mock_scale, mock_load, board):
     assert (5, 0) in valid_moves
     assert (4, 0) in valid_moves
     assert (5, 1) not in valid_moves
+
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_horizontal(mock_scale, mock_load, board):
+    """Test get_positions_between for a horizontal movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a horizontal movement
+    start = (3, 1)
+    end = (3, 5)
+
+    expected_positions = [(3, 2), (3, 3), (3, 4)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_vertical(mock_scale, mock_load, board):
+    """Test get_positions_between for a vertical movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a vertical movement
+    start = (1, 3)
+    end = (5, 3)
+
+    expected_positions = [(2, 3), (3, 3), (4, 3)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_diagonal(mock_scale, mock_load, board):
+    """Test get_positions_between for a diagonal movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a diagonal movement
+    start = (2, 2)
+    end = (5, 5)
+
+    expected_positions = [(3, 3), (4, 4)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_reverse_diagonal(mock_scale, mock_load, board):
+    """Test get_positions_between for a reverse diagonal movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a reverse diagonal movement
+    start = (5, 5)
+    end = (2, 2)
+
+    expected_positions = [(4, 4), (3, 3)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_reverse_horizontal(mock_scale, mock_load, board):
+    """Test get_positions_between for a reverse horizontal movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a reverse horizontal movement
+    start = (3, 5)
+    end = (3, 1)
+
+    expected_positions = [(3, 4), (3, 3), (3, 2)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
+
+@patch('pygame.image.load')
+@patch('pygame.transform.scale')
+def test_get_positions_between_reverse_vertical(mock_scale, mock_load, board):
+    """Test get_positions_between for a reverse vertical movement"""
+    mock_load.return_value = MagicMock()
+    mock_scale.return_value = MagicMock()
+
+    # Start and end points for a reverse vertical movement
+    start = (5, 3)
+    end = (1, 3)
+
+    expected_positions = [(4, 3), (3, 3), (2, 3)]
+
+    result = board.get_positions_between(start, end)
+
+    assert result == expected_positions, f"Expected {expected_positions}, but got {result}"
