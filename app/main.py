@@ -68,9 +68,7 @@ def main():
                     new_x = int((mouse_x - game_board.board_start_x) // game_board.square_size_x)
                     new_y = int((mouse_y - game_board.board_start_y) // game_board.square_size_y)
 
-                    if is_in_bounds(new_x, new_y) and game_board.is_valid_move(game_board.selected_piece,
-                                                                                          (new_x, new_y)):
-                        game_board.move_piece(piece, (new_x, new_y))
+                    game_board.move_piece(piece, (new_x, new_y))
 
                     game_board.selected_piece = None
 

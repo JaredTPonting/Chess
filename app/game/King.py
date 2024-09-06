@@ -9,15 +9,21 @@ class King(Piece):
         super().__init__(position, colour, sprite_path, square_size)
 
     def position_is_check(self, board, new_position):
+        # Simulate board move
+        original_piece = board[new_position[0]][new_position[1]]
         board[self.position[0]][self.position[1]] = None
+        board[new_position[0]][new_position[1]] = self
         for row in board:
             for piece in row:
                 if piece is not None and piece.colour != self.colour:
                     if piece.can_attack(board, new_position):
+                        # Revert board back to original
                         board[self.position[0]][self.position[1]] = self
+                        board[new_position[0]][new_position[1]] = original_piece
                         return True
 
         board[self.position[0]][self.position[1]] = self
+        board[new_position[0]][new_position[1]] = original_piece
         return False
 
     def can_attack(self, board, target_position):

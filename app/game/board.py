@@ -34,6 +34,7 @@ class Board:
         self.pieces = []
         self.turn = Colour.WHITE
         self.selected_piece = None
+        self.check = False
 
         # Configuration for excluding border of chess board
         self.border_ratio = 0.05
@@ -102,6 +103,9 @@ class Board:
 
         # TODO: Better management of self.pieces. Calling it every move piece is inefficient
         self.pieces = [playing_piece for row in self.board for playing_piece in row if playing_piece is not None]
+
+
+    # def is_check(self):
 
     def render(self, screen):
         # Draw board
