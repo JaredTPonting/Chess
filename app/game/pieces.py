@@ -5,6 +5,8 @@ from app import get_piece_asset_path
 import pygame
 import os
 
+from . import Colour
+
 
 class Piece:
     def __init__(self, position, colour, sprite_path, square_size):
@@ -59,7 +61,7 @@ class Pawn(Piece):
     def __init__(self, position, colour, square_size):
         sprite_path = get_piece_asset_path(colour, 'Pawn')
         super().__init__(position, colour, sprite_path, square_size)
-        self.direction = 1 if self.colour == "BLACK" else -1
+        self.direction = 1 if self.colour == Colour.BLACK else -1
 
     def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple]:
         moves = []
@@ -271,14 +273,4 @@ class King(Piece):
 
 
 if __name__ == "__main__":
-    # Example of initializing Pygame and a pawn
-    pygame.init()
-    screen = pygame.display.set_mode((512, 512))  # Example window size
-
-    white_pawn = Pawn((6, 4), 'white')
-    white_pawn.valid_moves()
-
-    # Blit the pawn's image onto the screen
-    screen.blit(white_pawn.sprite, (64 * 4, 64 * 6))  # 4th file, 6th rank (0-indexed)
-
-    pygame.display.flip()
+    print("...DONE...")
