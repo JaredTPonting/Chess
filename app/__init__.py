@@ -1,5 +1,5 @@
 import os
-from game import Colour
+from .game import Colour
 
 
 def get_board_asset_path():
