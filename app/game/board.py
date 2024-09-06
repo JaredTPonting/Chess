@@ -2,7 +2,12 @@ import pygame
 import os
 
 from app import get_board_asset_path
-from .pieces import Pawn, Rook, Knight, Bishop, King, Queen
+from .King import King
+from .Queen import Queen
+from .Bishop import Bishop
+from .Knight import Knight
+from .Rook import Rook
+from .Pawn import Pawn
 
 from . import Colour, is_in_bounds
 import copy
@@ -126,6 +131,9 @@ class Board:
     def is_valid_move(self, piece, position):
         valid_moves = piece.valid_moves(self.board)
         return position in valid_moves
+
+    def is_check_mate(self) -> bool:
+        return False
 
     def handle_click(self, position):
         pass
