@@ -4,7 +4,7 @@ import os
 from app import get_board_asset_path
 from .pieces import Pawn, Rook, Knight, Bishop, King, Queen
 
-from . import Colour
+from . import Colour, is_in_bounds
 import copy
 
 
@@ -79,13 +79,9 @@ class Board:
                 colour = Colour.BLACK if pos[0] == 0 else Colour.WHITE
                 self._add_piece(piece_class, pos, colour)
 
-    @staticmethod
-    def is_in_bounds(x: int, y: int):
-        return 0 <= x < 8 and 0 <= y < 8
-
     def move_piece(self, piece, new_position):
         print(f"MOVING: {piece.__class__.__name__}")
-        if not self.is_in_bounds(*new_position):
+        if not is_in_bounds(*new_position):
             print("Invalid move: Out of bounds")
             return
         if not self.is_valid_move(piece, new_position):
@@ -124,7 +120,7 @@ class Board:
         board_x = (mouse_x - self.board_start_x) // self.square_size_x
         board_y = (mouse_y - self.board_start_y) // self.square_size_y
 
-        if self.is_in_bounds(board_x, board_y):
+        if is_in_bounds(board_x, board_y):
             return self.board[int(board_x)][int(board_y)]
 
     def is_valid_move(self, piece, position):
