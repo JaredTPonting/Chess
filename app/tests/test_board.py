@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import copy
 
-from app.game import Colour, is_in_bounds
+from app.game import Colour
 from app.game.board import Board
 from app.game.pieces import Pawn, Rook, Knight, Bishop, Queen, King
 
