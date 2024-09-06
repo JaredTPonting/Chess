@@ -94,6 +94,23 @@ class Board:
             print("Invalid move: Move not allowed for piece")
             return
 
+        # Simulate move to see if it results in check
+        old_position = piece.position
+        piece.position = new_position
+        new_position_current_piece = self.board[new_position[0]][new_position[1]]
+        self.board[piece.position[0]][piece.position[1]] = None
+        self.board[new_position[0]][new_position[1]] = piece
+        threats = self.is_check(self.turn)
+        self.board[piece.position[0]][piece.position[1]] = piece
+        self.board[new_position[0]][new_position[1]] = new_position_current_piece
+        piece.position = old_position
+
+        if threats:
+            print("Invalid move: Leaves game in check")
+            return
+
+
+
         old_position = piece.position
         piece.position = new_position
         piece.has_moved = True
