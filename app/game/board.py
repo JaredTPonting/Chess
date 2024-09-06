@@ -4,6 +4,9 @@ import os
 from app import get_board_asset_path
 from .pieces import Pawn, Rook, Knight, Bishop, King, Queen
 
+from . import Colour
+import copy
+
 
 class Board:
     def __init__(self, screen_width, screen_height):
@@ -12,13 +15,19 @@ class Board:
         self.screen_height = screen_height
 
         # Load board png and scale it to screen dimensions
-        self.sprite = pygame.transform.scale(pygame.image.load(get_board_asset_path()), (screen_width, screen_height))
+        try:
+            self.sprite = pygame.transform.scale(pygame.image.load(get_board_asset_path()),
+                                                 (screen_width, screen_height))
+        except pygame.error as e:
+            print(f"Error loading board image: {e}")
+            self.sprite = None
 
         # Initialise game board
         self._empty_board = [[None for _ in range(8)] for _ in range(8)]
-        self.board = self._empty_board
+        self.board = copy.deepcopy(self._empty_board)
+        self.old_board = copy.deepcopy(self._empty_board)
         self.pieces = []
-        self.turn = "WHITE"
+        self.turn = Colour.WHITE
         self.selected_piece = None
 
         # Configuration for excluding border of chess board
@@ -38,45 +47,37 @@ class Board:
 
         self.setup_board()
 
+    def _place_pieces(self, piece_class, positions, colour):
+        """Helper to place a row of pieces on the board"""
+        for pos in positions:
+            self._add_piece(piece_class, pos, colour)
+
+    def _add_piece(self, piece_class, position, colour):
+        """Adds a piece to the board and the piece list"""
+        piece = piece_class(position=position, colour=colour, square_size=self.square_size_x)
+        self.pieces.append(piece)
+        self.board[position[0]][position[1]] = piece
+
     def setup_board(self):
         """
         Initialises the board. Adds starting position of each piece.
-        :return:
         """
 
-        # Set up Pawns
-        for i in range(8):
-            self.pieces.append(Pawn(position=(1, i), colour="BLACK", square_size=self.square_size_x))
-            self.pieces.append(Pawn(position=(6, i), colour="WHITE", square_size=self.square_size_x))
+        self._place_pieces(Pawn, [(1, i) for i in range(8)], Colour.BLACK)
+        self._place_pieces(Pawn, [(6, i) for i in range(8)], Colour.WHITE)
 
-        # Set up Rooks
-        self.pieces.append(Rook((0, 0), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Rook((0, 7), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Rook((7, 0), 'WHITE', square_size=self.square_size_x))
-        self.pieces.append(Rook((7, 7), 'WHITE', square_size=self.square_size_x))
+        piece_positions = {
+            Rook: [(0, 0), (0, 7), (7, 0), (7, 7)],
+            Knight: [(0, 1), (0, 6), (7, 1), (7, 6)],
+            Bishop: [(0, 2), (0, 5), (7, 2), (7, 5)],
+            Queen: [(0, 3), (7, 3)],
+            King: [(0, 4), (7, 4)]
+        }
 
-        # Set up Knights
-        self.pieces.append(Knight((0, 1), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Knight((0, 6), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Knight((7, 1), 'WHITE', square_size=self.square_size_x))
-        self.pieces.append(Knight((7, 6), 'WHITE', square_size=self.square_size_x))
-
-        # Set up Bishops
-        self.pieces.append(Bishop((0, 2), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Bishop((0, 5), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Bishop((7, 2), 'WHITE', square_size=self.square_size_x))
-        self.pieces.append(Bishop((7, 5), 'WHITE', square_size=self.square_size_x))
-
-        # Set up Queens
-        self.pieces.append(Queen((0, 3), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(Queen((7, 3), 'WHITE', square_size=self.square_size_x))
-
-        # Set up Kings
-        self.pieces.append(King((0, 4), 'BLACK', square_size=self.square_size_x))
-        self.pieces.append(King((7, 4), 'WHITE', square_size=self.square_size_x))
-
-        for piece in self.pieces:
-            self.board[piece.position[0]][piece.position[1]] = piece
+        for piece_class, positions in piece_positions.items():
+            for pos in positions:
+                colour = Colour.BLACK if pos[0] == 0 else Colour.WHITE
+                self._add_piece(piece_class, pos, colour)
 
     @staticmethod
     def is_in_bounds(x: int, y: int):
@@ -84,12 +85,21 @@ class Board:
 
     def move_piece(self, piece, new_position):
         print(f"MOVING: {piece.__class__.__name__}")
+        if not self.is_in_bounds(*new_position):
+            print("Invalid move: Out of bounds")
+            return
+        if not self.is_valid_move(piece, new_position):
+            print("Invalid move: Move not allowed for piece")
+            return
 
         old_position = piece.position
         piece.position = new_position
         piece.has_moved = True
         self.board[old_position[0]][old_position[1]] = None
         self.board[new_position[0]][new_position[1]] = piece
+        self.turn = Colour.WHITE if self.turn == Colour.BLACK else Colour.BLACK
+
+        # TODO: Better management of self.pieces. Calling it every move piece is inefficient
         self.pieces = [playing_piece for row in self.board for playing_piece in row if playing_piece is not None]
 
     def render(self, screen):
@@ -100,6 +110,7 @@ class Board:
         for piece in self.pieces:
             if self.selected_piece and piece == self.selected_piece:
                 continue
+
             piece_x, piece_y = piece.position
 
             # Adjust position to fit within board (excluding boarder)
