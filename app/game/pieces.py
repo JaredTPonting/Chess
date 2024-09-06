@@ -1,11 +1,9 @@
-import copy
 from typing import Union, List
 
 from app import get_piece_asset_path
 from abc import ABC, abstractmethod
 
 import pygame
-import os
 
 from . import Colour, is_in_bounds
 
