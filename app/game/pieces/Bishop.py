@@ -1,8 +1,8 @@
 from typing import List, Union
 from app import get_piece_asset_path
 from app.game import is_in_bounds
-from app.game.pieces import Piece
-from . import Colour
+from app.game.pieces.pieces import Piece
+from app.game import Colour
 
 
 class Bishop(Piece):

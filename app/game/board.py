@@ -1,16 +1,15 @@
 from typing import List, Union
 
 import pygame
-import os
 import copy
 
 from app import get_board_asset_path
-from .King import King
-from .Queen import Queen
-from .Bishop import Bishop
-from .Knight import Knight
-from .Rook import Rook
-from .Pawn import Pawn
+from app.game.pieces.King import King
+from app.game.pieces.Queen import Queen
+from app.game.pieces.Bishop import Bishop
+from app.game.pieces.Knight import Knight
+from app.game.pieces.Rook import Rook
+from app.game.pieces.Pawn import Pawn
 from . import Colour, is_in_bounds, get_positions_between
 
 

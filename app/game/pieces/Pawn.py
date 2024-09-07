@@ -1,7 +1,7 @@
 from typing import List, Union
 from app import get_piece_asset_path
-from app.game.pieces import Piece
-from . import Colour, is_in_bounds
+from app.game.pieces.pieces import Piece
+from app.game import Colour, is_in_bounds
 
 
 class Pawn(Piece):
@@ -14,7 +14,7 @@ class Pawn(Piece):
         """
         sprite_path = get_piece_asset_path(colour, 'Pawn')
         super().__init__(position, colour, sprite_path, square_size)
-        self.direction = 1 if self.colour == Colour.BLACK else -1  # Set movement direction based on pawn colour
+        self.direction = 1 if self.colour.value == Colour.BLACK.value else -1  # Set movement direction based on pawn colour
 
     def _valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
         """

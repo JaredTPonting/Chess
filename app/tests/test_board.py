@@ -1,14 +1,13 @@
 import pytest
 from unittest.mock import patch, MagicMock
-import copy
 
 from app.game import Colour
-from app.game.Bishop import Bishop
-from app.game.King import King
-from app.game.Knight import Knight
-from app.game.Pawn import Pawn
-from app.game.Queen import Queen
-from app.game.Rook import Rook
+from app.game.pieces.Bishop import Bishop
+from app.game.pieces.King import King
+from app.game.pieces.Knight import Knight
+from app.game.pieces.Pawn import Pawn
+from app.game.pieces.Queen import Queen
+from app.game.pieces.Rook import Rook
 from app.game.board import Board
 
 

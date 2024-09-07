@@ -2,7 +2,7 @@ from typing import Union, List, Tuple
 from app import get_piece_asset_path
 from abc import ABC, abstractmethod
 import pygame
-from . import Colour
+from app.game import Colour
 
 
 class Piece(ABC):

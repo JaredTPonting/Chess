@@ -1,6 +1,6 @@
 from app import get_piece_asset_path
 from app.game import is_in_bounds
-from app.game.pieces import Piece
+from app.game.pieces.pieces import Piece
 
 
 class Queen(Piece):
