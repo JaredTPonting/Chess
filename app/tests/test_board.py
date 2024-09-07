@@ -140,7 +140,8 @@ def test_is_valid_move(mock_scale, mock_load, board):
     mock_scale.return_value = MagicMock()
 
     pawn = board.board[6][0]
-    valid_moves = pawn.valid_moves(board.board)
+    pawn._update_moves(board.board, [])
+    valid_moves = pawn.move_list
 
     # Let's assume pawns can move one step forward initially
     assert (5, 0) in valid_moves
