@@ -1,11 +1,9 @@
 import pygame
 import sys
 
-from app.game.King import King
 from game.board import Board
-from game import is_in_bounds
+from game import is_in_bounds, get_positions_between
 
-from game import get_positions_between
 
 pygame.init()
 
@@ -19,17 +17,17 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
 
 
-def draw_board(board, screen):
+def draw_board(board: Board, screen: pygame.Surface):
+    """Renders the current state of the board on the screen"""
     board.render(screen)
 
 
 def get_mouse_coords():
     """
-    get mouse coords but switch position to make similar to how we define chess board
-    :return: (X, Y) equivelant to (ROW direction, COLUMN direction)
+    Returns mouse coordinates (row, column), rearranged to match chess board orientation.
+    :return: Tuple (row, column)
     """
-    column_dir, row_dir = pygame.mouse.get_pos()
-    return (row_dir, column_dir)
+    return pygame.mouse.get_pos()[::-1]
 
 
 def main():
