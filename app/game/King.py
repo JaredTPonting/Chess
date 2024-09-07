@@ -44,7 +44,7 @@ class King(Piece):
         """
         return target_position in self._generate_king_moves(board)
 
-    def valid_moves(self, board) -> list:
+    def _valid_moves(self, board) -> list:
         """
         Returns all valid moves for the King, taking into account checks.
 

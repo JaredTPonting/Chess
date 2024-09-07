@@ -17,7 +17,7 @@ class Bishop(Piece):
         sprite_path = get_piece_asset_path(colour, "Bishop")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
+    def _valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
         """
         Returns a list of valid moves for the bishop.
         Bishops move diagonally in all four directions and can continue moving in a direction

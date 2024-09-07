@@ -8,7 +8,7 @@ class Queen(Piece):
         sprite_path = get_piece_asset_path(colour, "Queen")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def valid_moves(self, board) -> list:
+    def _valid_moves(self, board) -> list:
         """
         Returns all valid moves for the Queen.
 

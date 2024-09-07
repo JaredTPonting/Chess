@@ -25,6 +25,7 @@ class Piece(ABC):
         self.square_size = square_size
         self.actual_x = None  # The actual pixel position on the screen (x-coordinate)
         self.actual_y = None  # The actual pixel position on the screen (y-coordinate)
+        self.move_list: List = []
 
         # Load the piece's sprite
         try:
@@ -63,10 +64,17 @@ class Piece(ABC):
         :param target_position: Tuple (row, col) representing the target position.
         :return: True if the piece can attack the target position, False otherwise.
         """
-        return target_position in self.valid_moves(board)
+        return target_position in self.move_list
+
+    def _update_moves(self, board, BOARD_ALLOWED_MOVES):
+        moves = self._valid_moves(board)
+        if not BOARD_ALLOWED_MOVES:
+            self.move_list = moves
+            return
+        self.move_list = [move for move in moves if move in BOARD_ALLOWED_MOVES]
 
     @abstractmethod
-    def valid_moves(self, board: List[List[Union['Piece', None]]]) -> List[Tuple[int, int]]:
+    def _valid_moves(self, board: List[List[Union['Piece', None]]]) -> List[Tuple[int, int]]:
         """
         Abstract method to be implemented by each specific piece (King, Queen, etc.)
         to return valid moves.
@@ -75,6 +83,10 @@ class Piece(ABC):
         :return: List of valid moves for the piece, represented as (row, col) tuples.
         """
         raise NotImplementedError("This method should be implemented in subclasses")
+
+    def get_moves(self):
+        return self.move_list
+
 
     @staticmethod
     def is_in_bounds(x: int, y: int) -> bool:

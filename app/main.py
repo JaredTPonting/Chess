@@ -48,28 +48,11 @@ def main():
 
                 if piece:
                     if piece.colour != game_board.turn:
+                        print("Not your turn")
                         continue
-
-                    threats = game_board.is_check(game_board.turn)
-                    if threats:
-                        BOARD_ALLOWED_MOVES = []
-                        king_position = None
-                        for row in game_board.board:
-                            for current_piece in row:
-                                if current_piece.__class__.__name__ == 'King':
-                                    if current_piece.colour == piece.colour:
-                                        king_position = current_piece.position
-                                        break
-                            if king_position:
-                                break
-                        for threat in threats:
-                            BOARD_ALLOWED_MOVES.append(threat.position)
-                            BOARD_ALLOWED_MOVES += get_positions_between(threat.position, king_position)
-
-                        pieces_valid_moves = piece.valid_moves(game_board.board)
-                        if piece.__class__.__name__ != "King":
-                            if not [pot_move for pot_move in pieces_valid_moves if pot_move in BOARD_ALLOWED_MOVES]:
-                                continue
+                    if not piece.move_list:
+                        print("No valid moves im afraid")
+                        continue
 
                     game_board.selected_piece = piece
                     selected_piece = piece

@@ -16,7 +16,7 @@ class Pawn(Piece):
         super().__init__(position, colour, sprite_path, square_size)
         self.direction = 1 if self.colour == Colour.BLACK else -1  # Set movement direction based on pawn colour
 
-    def valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
+    def _valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
         """
         Returns a list of valid moves for the pawn.
         Pawns move forward (1 or 2 squares if not moved) and can capture diagonally.
