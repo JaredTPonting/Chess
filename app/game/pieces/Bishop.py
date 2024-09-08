@@ -17,7 +17,7 @@ class Bishop(Piece):
         sprite_path = get_piece_asset_path(colour, "Bishop")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def _valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
+    def _valid_moves(self, board) -> List[tuple[int, int]]:
         """
         Returns a list of valid moves for the bishop.
         Bishops move diagonally in all four directions and can continue moving in a direction
@@ -43,11 +43,11 @@ class Bishop(Piece):
                     break  # Stop if out of bounds
 
                 # If the square is empty, add it to valid moves
-                if board[new_row][new_col] is None:
+                if (new_row, new_col) not in board.keys():
                     moves.append((new_row, new_col))
 
                 # If the square has an opponent's piece, add it to valid moves and stop further movement
-                elif board[new_row][new_col].colour != self.colour:
+                elif board[(new_row, new_col)].colour != self.colour:
                     moves.append((new_row, new_col))
                     break  # Bishop cannot jump over pieces
 

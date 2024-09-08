@@ -15,7 +15,7 @@ class Rook(Piece):
         sprite_path = get_piece_asset_path(colour, 'Rook')
         super().__init__(position, colour, sprite_path, square_size)
 
-    def _valid_moves(self, board) -> list:
+    def _valid_moves(self, board: dict) -> list:
         """
         Returns all valid moves for the Rook.
 
@@ -49,7 +49,7 @@ class Rook(Piece):
                     # Stop if the move is out of bounds
                     break
 
-                target_piece = board[new_row][new_col]
+                target_piece = board.get((new_row, new_col), None)
 
                 if target_piece is None:
                     # Empty square, add move to valid moves

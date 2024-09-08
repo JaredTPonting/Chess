@@ -66,7 +66,7 @@ class Piece(ABC):
         """
         return target_position in self.move_list
 
-    def _update_moves(self, board, BOARD_ALLOWED_MOVES):
+    def update_moves(self, board, BOARD_ALLOWED_MOVES):
         moves = self._valid_moves(board)
         if not BOARD_ALLOWED_MOVES:
             self.move_list = moves
@@ -74,7 +74,7 @@ class Piece(ABC):
         self.move_list = [move for move in moves if move in BOARD_ALLOWED_MOVES]
 
     @abstractmethod
-    def _valid_moves(self, board: List[List[Union['Piece', None]]]) -> List[Tuple[int, int]]:
+    def _valid_moves(self, board) -> List[Tuple[int, int]]:
         """
         Abstract method to be implemented by each specific piece (King, Queen, etc.)
         to return valid moves.

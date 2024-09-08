@@ -27,9 +27,7 @@ class Board:
 
         # Initialize the empty board and track pieces
         self._empty_board = [[None for _ in range(8)] for _ in range(8)]
-        self.board: List[List[Union[King, Queen, Bishop, Knight, Rook, Pawn, None]]] = copy.deepcopy(self._empty_board)
-        self.old_board = copy.deepcopy(self._empty_board)
-        self.pieces = []
+        self.board: {tuple[int, int]: Union[King, Queen, Bishop, Knight, Rook, Pawn]} = {}
         self.turn = Colour.WHITE
         self.selected_piece = None
         self.check = False
@@ -71,32 +69,12 @@ class Board:
     def _add_piece(self, piece_class, position, colour):
         """Adds a piece to the board and the piece list."""
         piece = piece_class(position=position, colour=colour, square_size=self.square_size_x)
-        self.pieces.append(piece)
-        self.board[position[0]][position[1]] = piece
+        self.board[position] = piece
 
     def _place_pieces(self, piece_class, positions, colour):
         """Helper method to place multiple pieces on the board."""
         for pos in positions:
             self._add_piece(piece_class, pos, colour)
-
-    def update_piece_move_list(self):
-        threats = self.is_check(self.turn)
-        BOARD_ALLOWED_MOVES = []
-        if threats:
-            king_position = self.find_king(self.turn)
-            for threat in threats:
-                BOARD_ALLOWED_MOVES.append(threat.position)
-                BOARD_ALLOWED_MOVES += get_positions_between(threat.position, king_position)
-
-        # Need to update current turns moveset first
-        for piece in self.pieces:
-            if piece.colour == self.turn:
-                piece._update_moves(self.board, BOARD_ALLOWED_MOVES)
-
-        # Then we update next turns moveset
-        for piece in self.pieces:
-            if piece.colour != self.turn:
-                piece._update_moves(self.board, [])
 
     def setup_board(self):
         """Sets up the initial board with all pieces in their starting positions."""
@@ -110,7 +88,7 @@ class Board:
             Knight: [(0, 1), (0, 6), (7, 1), (7, 6)],
             Bishop: [(0, 2), (0, 5), (7, 2), (7, 5)],
             Queen: [(0, 3), (7, 3)],
-            King: [(0, 4), (7, 4)]
+            # King: [(0, 4), (7, 4)]
         }
 
         for piece_class, positions in piece_positions.items():
@@ -118,6 +96,25 @@ class Board:
                 colour = Colour.BLACK if pos[0] == 0 else Colour.WHITE
                 self._add_piece(piece_class, pos, colour)
         self.update_piece_move_list()
+
+    def update_piece_move_list(self):
+        threats = self.is_check(self.turn)
+        BOARD_ALLOWED_MOVES = []
+        if threats:
+            king_position = self.find_king(self.turn)
+            for threat in threats:
+                BOARD_ALLOWED_MOVES.append(threat.position)
+                BOARD_ALLOWED_MOVES += get_positions_between(threat.position, king_position)
+
+        # Need to update current turns moveset first
+        for piece in self.board.values():
+            if piece.colour == self.turn:
+                piece.update_moves(self.board, BOARD_ALLOWED_MOVES)
+
+        # Then we update next turns moveset
+        for piece in self.board.values():
+            if piece.colour != self.turn:
+                piece.update_moves(self.board, [])
 
     def move_piece(self, piece, new_position):
         """Attempts to move a piece and handles check validation."""
@@ -138,17 +135,18 @@ class Board:
             return
 
         # Execute the move and switch turns
-        self._finalize_move(piece, old_position, new_position)
-        self.pieces = [p for row in self.board for p in row if p is not None]
-
+        self._finalize_move(piece)
         self.is_checkmate()
 
     def _simulate_move(self, piece, new_position):
         """Simulates moving a piece and returns the piece at the new position."""
         old_position = piece.position
-        current_piece = self.board[new_position[0]][new_position[1]]
-        self.board[old_position[0]][old_position[1]] = None
-        self.board[new_position[0]][new_position[1]] = piece
+        if new_position in self.board.keys():
+            current_piece = self.board[new_position]
+        else:
+            current_piece = None
+        self.board.pop(old_position)
+        self.board[new_position] = piece
         piece.position = new_position
         self.update_piece_move_list()
         return current_piece
@@ -156,14 +154,15 @@ class Board:
     def _revert_move(self, piece, new_position, old_position, current_piece):
         """Reverts a simulated move."""
         piece.position = old_position
-        self.board[old_position[0]][old_position[1]] = piece
-        self.board[new_position[0]][new_position[1]] = current_piece
+        self.board[old_position] = piece
+        if current_piece is not None:
+            self.board[new_position] = current_piece
+        else:
+            self.board.pop(new_position)
         self.update_piece_move_list()
 
-    def _finalize_move(self, piece, old_position, new_position):
+    def _finalize_move(self, piece):
         """Finalizes a valid move and switches the turn."""
-        # self.board[old_position[0]][old_position[1]] = None
-        # self.board[new_position[0]][new_position[1]] = piece
         piece.has_moved = True
         self.turn = Colour.WHITE if self.turn == Colour.BLACK else Colour.BLACK
 
@@ -171,7 +170,7 @@ class Board:
         """Renders the board and all active pieces."""
         screen.blit(self.sprite, dest=(0, 0))
 
-        for piece in self.pieces:
+        for piece in self.board.values():
             if piece == self.selected_piece:
                 continue
 
@@ -190,7 +189,7 @@ class Board:
         board_y = (mouse_y - self.board_start_y) // self.square_size_y
 
         if is_in_bounds(board_x, board_y):
-            return self.board[int(board_x)][int(board_y)]
+            return self.board[(board_x, board_y)]
 
     @staticmethod
     def is_valid_move(piece, position):
@@ -199,10 +198,9 @@ class Board:
 
     def find_king(self, colour):
         """Finds the position of the king for a given colour."""
-        for row in self.board:
-            for piece in row:
-                if isinstance(piece, King) and piece.colour == colour:
-                    return piece.position
+        for i, v in self.board.items():
+            if isinstance(v, King) and v.colour.value == colour:
+                return i
         return None
 
     def is_check(self, colour: Colour) -> list:
@@ -212,28 +210,25 @@ class Board:
         if king_position is None:
             return threats
 
-        for row in self.board:
-            for piece in row:
-                if piece and piece.colour != colour and piece.can_attack(self.board, king_position):
-                    threats.append(piece)
+        for i, v in self.board.items():
+            if v and v.colour != colour and v.can_attack(self.board, king_position):
+                threats.append(v)
         return threats
 
     def can_capture(self, attacker):
         """Checks if any piece can capture the given attacker."""
-        for row in self.board:
-            for piece in row:
-                if piece and piece.colour != attacker.colour and attacker.position in piece.move_list:
-                    return True
+        for i, piece in self.board.items():
+            if piece and piece.colour != attacker.colour and attacker.position in piece.move_list:
+                return True
         return False
 
     def can_block(self, attacker, king):
         """Checks if any piece can block the attacker from reaching the king."""
         if isinstance(attacker, (Rook, Bishop, Queen)):
             positions_to_block = self.get_positions_between(attacker.position, king.position)
-            for row in self.board:
-                for piece in row:
-                    if piece and piece.colour == king.colour:
-                        if any(move in positions_to_block for move in piece.move_list):
+            for i, piece in self.board.items():
+                if piece and piece.colour == king.colour:
+                    if any(move in positions_to_block for move in piece.move_list):
                             return True
         return False
 
@@ -245,7 +240,7 @@ class Board:
             return
 
         king_position = self.find_king(self.turn)
-        king_piece = self.board[king_position[0]][king_position[1]]
+        king_piece = self.board[king_position]
 
         if king_piece.move_list:
             new_move_list = []
@@ -287,6 +282,6 @@ class Board:
         """Checks if the game is over due to checkmate or stalemate."""
         return self.stalemate or self.checkmate
 
-    def is_stalemate(self) -> bool:
+    def is_stalemate(self):
         """Checks if the game is in a stalemate state."""
         self.stalemate = False

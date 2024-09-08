@@ -8,7 +8,7 @@ class Queen(Piece):
         sprite_path = get_piece_asset_path(colour, "Queen")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def _valid_moves(self, board) -> list:
+    def _valid_moves(self, board: dict) -> list:
         """
         Returns all valid moves for the Queen.
 
@@ -46,7 +46,7 @@ class Queen(Piece):
                     # Stop if move is out of bounds
                     break
 
-                target_piece = board[new_row][new_col]
+                target_piece = board.get((new_row, new_col), None)
 
                 if target_piece is None:
                     # Add the position if it's an empty square

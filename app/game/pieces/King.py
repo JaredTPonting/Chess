@@ -8,7 +8,7 @@ class King(Piece):
         sprite_path = get_piece_asset_path(colour, "King")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def position_is_check(self, board, new_position) -> bool:
+    def position_is_check(self, board: dict, new_position) -> bool:
         """
         Simulates moving the King to a new position and checks if the position is under attack.
 
@@ -16,21 +16,24 @@ class King(Piece):
         :param new_position: The position to check for attack.
         :return: True if the new position is in check, False otherwise.
         """
-        original_piece = board[new_position[0]][new_position[1]]
+        original_piece = board.get(new_position, None)
 
         # Simulate move
-        board[self.position[0]][self.position[1]] = None
-        board[new_position[0]][new_position[1]] = self
+        board.pop(self.position)
+        board[new_position] = self
 
         # Check if any opposing piece can attack the new position
         in_check = any(
-            piece and piece.colour != self.colour and piece.can_attack(board, new_position)
-            for row in board for piece in row
+            piece.colour != self.colour and piece.can_attack(board, new_position)
+            for piece in board.values()
         )
 
         # Revert the simulated move
-        board[self.position[0]][self.position[1]] = self
-        board[new_position[0]][new_position[1]] = original_piece
+        board[self.position] = self
+        if original_piece is not None:
+            board[new_position] = original_piece
+        else:
+            board.pop(new_position)
 
         return in_check
 
@@ -42,7 +45,7 @@ class King(Piece):
         :param target_position: The position to check for attack.
         :return: True if the King can attack the target position, False otherwise.
         """
-        return target_position in self._generate_king_moves(board)
+        return target_position in self._generate_king_moves()
 
     def _valid_moves(self, board) -> list:
         """
@@ -53,14 +56,14 @@ class King(Piece):
         """
         moves = [
             (new_row, new_col)
-            for new_row, new_col in self._generate_king_moves(board)
-            if board[new_row][new_col] is None or board[new_row][new_col].colour != self.colour
+            for new_row, new_col in self._generate_king_moves()
+            if (new_row, new_col) not in board.keys() or board[(new_row, new_col)].colour != self.colour
         ]
 
         # Filter out moves that would put the King in check
         return [move for move in moves if not self.position_is_check(board, move)]
 
-    def _generate_king_moves(self, board) -> list:
+    def _generate_king_moves(self) -> list:
         """
         Generates potential moves for the King, without considering checks.
 

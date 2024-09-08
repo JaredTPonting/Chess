@@ -8,7 +8,7 @@ class Knight(Piece):
         sprite_path = get_piece_asset_path(colour, "Knight")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def _valid_moves(self, board) -> list:
+    def _valid_moves(self, board: dict) -> list:
         """
         Returns all valid moves for the Knight.
 
@@ -27,7 +27,7 @@ class Knight(Piece):
                 # Skip if the move is out of bounds
                 continue
 
-            target_piece = board[new_row][new_col]
+            target_piece = board.get((new_row, new_col), None)
 
             if target_piece is None:
                 # Move to empty square

@@ -16,7 +16,7 @@ class Pawn(Piece):
         super().__init__(position, colour, sprite_path, square_size)
         self.direction = 1 if self.colour.value == Colour.BLACK.value else -1  # Set movement direction based on pawn colour
 
-    def _valid_moves(self, board: List[List[Union[Piece, None]]]) -> List[tuple[int, int]]:
+    def _valid_moves(self, board) -> List[tuple[int, int]]:
         """
         Returns a list of valid moves for the pawn.
         Pawns move forward (1 or 2 squares if not moved) and can capture diagonally.
@@ -29,20 +29,20 @@ class Pawn(Piece):
 
         # Move one square forward if empty
         next_ROW = ROW + self.direction
-        if is_in_bounds(next_ROW, COL) and board[next_ROW][COL] is None:
+        if is_in_bounds(next_ROW, COL) and (next_ROW, COL) not in board.keys():
             moves.append((next_ROW, COL))
 
         # First move: Move two squares forward if empty
         if not self.has_moved:
             next_2_ROW = next_ROW + self.direction
-            if is_in_bounds(next_2_ROW, COL) and board[next_2_ROW][COL] is None:
+            if is_in_bounds(next_2_ROW, COL) and (next_2_ROW, COL) not in board.keys():
                 moves.append((next_2_ROW, COL))
 
         # Capture moves: Check diagonals for opponent's pieces
         for dcol in [-1, 1]:  # Check left and right diagonal
             next_COL = COL + dcol
-            if is_in_bounds(next_ROW, next_COL) and board[next_ROW][next_COL] is not None:
-                if board[next_ROW][next_COL].colour != self.colour:
+            if is_in_bounds(next_ROW, next_COL) and (next_ROW, next_COL) in board.keys():
+                if board[(next_ROW, next_COL)].colour != self.colour:
                     moves.append((next_ROW, next_COL))
 
         # TODO: Add en passant functionality
