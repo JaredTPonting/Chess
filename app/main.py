@@ -1,14 +1,10 @@
 import pygame
 import sys
-
 from game.board import Board
-from game import is_in_bounds, get_positions_between
-
 
 pygame.init()
 
 WIDTH, HEIGHT = 800, 800
-SQUARE_SIZE = WIDTH // 8
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
@@ -17,86 +13,130 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
 
 
-def draw_board(board: Board, screen: pygame.Surface):
-    """Renders the current state of the board on the screen"""
-    board.render(screen)
+class GameState:
+    def __init__(self, screen):
+        self.screen = screen
+
+    def handle_events(self, event):
+        pass
+
+    def update(self):
+        pass
+
+    def render(self):
+        pass
 
 
-def get_mouse_coords():
-    """
-    Returns mouse coordinates (row, column), rearranged to match chess board orientation.
-    :return: Tuple (row, column)
-    """
-    return pygame.mouse.get_pos()[::-1]
+class TitleState(GameState):
+    def __init__(self, screen):
+        super().__init__(screen)
+        self.font = pygame.font.Font(None, 74)
+        self.title_text = self.font.render("Chess", True, WHITE)
+        self.new_game_text = self.font.render("New Game", True, WHITE)
+        self.button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+
+    def handle_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.button_rect.collidepoint(mouse_x, mouse_y):
+                return "GAME"  # Switch to game state
+        return None
+
+    def render(self):
+        self.screen.fill(BLACK)
+        self.screen.blit(self.title_text, (WIDTH // 2 - 100, HEIGHT // 3))
+        pygame.draw.rect(self.screen, WHITE, self.button_rect)
+        self.screen.blit(self.new_game_text, (WIDTH // 2 - 100, HEIGHT // 2 + 10))
 
 
-def main():
-    game_board = Board(WIDTH, HEIGHT)
-    mouse_offset = (0, 0)
-    selected_piece = None
+class GameState(GameState):
+    def __init__(self, screen):
+        super().__init__(screen)
+        self.board = Board(WIDTH, HEIGHT)
+        self.selected_piece = None
+        self.mouse_offset = (0, 0)
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+    def handle_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()[::-1]  # Reverse for chess orientation
+            piece = self.board.get_piece_at(mouse_x, mouse_y)
 
-            # Mouse Click event to pick up the piece
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = get_mouse_coords()
-                piece = game_board.get_piece_at(mouse_x, mouse_y)
+            if piece:
+                if piece.colour != self.board.turn:
+                    print("Not your turn")
+                    return
+                self.board.selected_piece = piece
+                self.selected_piece = piece
 
-                if piece:
-                    if piece.colour != game_board.turn:
-                        print("Not your turn")
-                        continue
-                    if not piece.move_list:
-                        print("No valid moves im afraid")
-                        continue
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.board.selected_piece:
+                mouse_x, mouse_y = pygame.mouse.get_pos()[::-1]
+                new_x = int((mouse_x - self.board.board_start_x) // self.board.square_size_x)
+                new_y = int((mouse_y - self.board.board_start_y) // self.board.square_size_y)
+                self.board.move_piece(self.selected_piece, (new_x, new_y))
+                self.board.selected_piece = None
 
-                    game_board.selected_piece = piece
-                    selected_piece = piece
+    def update(self):
+        if self.board.is_game_over():
+            return "GAMEOVER"  # Switch to game over state
+        return None
 
-                    piece_x, piece_y = piece.position
+    def render(self):
+        self.board.render(self.screen)
 
-                    # Adjust position to fit within board (excluding boarder)
-                    piece_x = game_board.board_start_x + (piece_x * game_board.square_size_x) - (
-                            game_board.square_size_x * 0.1)
-                    piece_y = game_board.board_start_y + (piece_y * game_board.square_size_y) + (
-                            game_board.square_size_y * 0.25)
 
-                    mouse_offset = (mouse_x - piece_x, mouse_y - piece_y)
+class GameOverState(GameState):
+    def __init__(self, screen):
+        super().__init__(screen)
+        self.font = pygame.font.Font(None, 74)
+        self.game_over_text = self.font.render("Game Over", True, WHITE)
+        self.restart_text = self.font.render("Restart", True, WHITE)
+        self.button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
 
-            # Mouse release event to drop the piece
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if game_board.selected_piece:
-                    mouse_x, mouse_y = get_mouse_coords()
+    def handle_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.button_rect.collidepoint(mouse_x, mouse_y):
+                return "TITLE"  # Switch to title state
+        return None
 
-                    new_x = int((mouse_x - game_board.board_start_x) // game_board.square_size_x)
-                    new_y = int((mouse_y - game_board.board_start_y) // game_board.square_size_y)
+    def render(self):
+        self.screen.fill(BLACK)
+        self.screen.blit(self.game_over_text, (WIDTH // 2 - 100, HEIGHT // 3))
+        pygame.draw.rect(self.screen, WHITE, self.button_rect)
+        self.screen.blit(self.restart_text, (WIDTH // 2 - 100, HEIGHT // 2 + 10))
 
-                    game_board.move_piece(piece, (new_x, new_y))
 
-                    game_board.selected_piece = None
+class Game:
+    def __init__(self, screen):
+        self.screen = screen
+        self.state = TitleState(screen)
 
-        # Render Board and Pieces
-        draw_board(game_board, screen)
+    def change_state(self, new_state):
+        if new_state == "TITLE":
+            self.state = TitleState(self.screen)
+        elif new_state == "GAME":
+            self.state = GameState(self.screen)
+        elif new_state == "GAMEOVER":
+            self.state = GameOverState(self.screen)
 
-        # If piece being dragged, Render it last
-        if game_board.selected_piece:
-            mouse_x, mouse_y = get_mouse_coords()
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
 
-            adjusted_x = mouse_x - mouse_offset[0]
-            adjusted_y = mouse_y - mouse_offset[1]
+                new_state = self.state.handle_events(event)
+                if new_state:
+                    self.change_state(new_state)
 
-            selected_piece.render(screen, (adjusted_x, adjusted_y))
+            self.state.update()
+            self.state.render()
 
-        if game_board.is_game_over():
-            pygame.quit()
-            sys.exit()
-
-        pygame.display.flip()
+            pygame.display.flip()
 
 
 if __name__ == "__main__":
-    main()
+    game = Game(screen)
+    game.run()
