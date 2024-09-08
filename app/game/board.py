@@ -33,6 +33,8 @@ class Board:
         self.turn = Colour.WHITE
         self.selected_piece = None
         self.check = False
+        self.stalemate = False
+        self.checkmate = False
 
         # Configuration for chessboard border and square size
         self.border_ratio = 0.05
@@ -139,6 +141,8 @@ class Board:
         self._finalize_move(piece, old_position, new_position)
         self.pieces = [p for row in self.board for p in row if p is not None]
 
+        self.is_checkmate()
+
     def _simulate_move(self, piece, new_position):
         """Simulates moving a piece and returns the piece at the new position."""
         old_position = piece.position
@@ -233,23 +237,36 @@ class Board:
                             return True
         return False
 
-    def is_checkmate(self) -> bool:
+    def is_checkmate(self):
         """Checks if the current player is in checkmate."""
         attacking_pieces = self.is_check(self.turn)
         if not attacking_pieces:
-            return False
+            self.checkmate = False
+            return
 
         king_position = self.find_king(self.turn)
         king_piece = self.board[king_position[0]][king_position[1]]
 
         if king_piece.move_list:
-            return False
+            new_move_list = []
+            for move in king_piece.move_list:
+                kings_capture = self._simulate_move(king_piece, move)
+                threats = self.is_check(self.turn)
+                if not threats:
+                    new_move_list.append(move)
+                self._revert_move(king_piece, move, king_position, kings_capture)
+
+            if new_move_list:
+                self.checkmate = False
+                return
+            self.checkmate = True
+            return
 
         for attacker in attacking_pieces:
             if self.can_capture(attacker) or self.can_block(attacker, king_piece):
-                return False
+                self.checkmate = False
 
-        return True
+        self.checkmate = True
 
     @staticmethod
     def get_positions_between(start, end):
@@ -268,9 +285,8 @@ class Board:
 
     def is_game_over(self) -> bool:
         """Checks if the game is over due to checkmate or stalemate."""
-        return self.is_stalemate() or self.is_checkmate()
+        return self.stalemate or self.checkmate
 
-    @staticmethod
-    def is_stalemate() -> bool:
+    def is_stalemate(self) -> bool:
         """Checks if the game is in a stalemate state."""
-        return False
+        self.stalemate = False
