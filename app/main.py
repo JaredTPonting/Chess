@@ -120,7 +120,7 @@ class GameOverState(GameState):
         self.font = pygame.font.Font(None, 74)
         self.game_over_text = self.font.render("Game Over", True, WHITE)
         self.restart_text = self.font.render("Restart", True, WHITE)
-        self.button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        self.button_rect = pygame.Rect(WIDTH // 2 - 110, HEIGHT // 2, 200, 60)
 
     def handle_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -132,7 +132,7 @@ class GameOverState(GameState):
     def render(self):
         self.screen.fill(BLACK)
         self.screen.blit(self.game_over_text, (WIDTH // 2 - 100, HEIGHT // 3))
-        pygame.draw.rect(self.screen, WHITE, self.button_rect)
+        pygame.draw.rect(self.screen, (100, 100, 100), self.button_rect)
         self.screen.blit(self.restart_text, (WIDTH // 2 - 100, HEIGHT // 2 + 10))
 
 
