@@ -95,6 +95,9 @@ class SingleGameState(GameState):
                 self.board.move_piece(self.selected_piece, (new_x, new_y))
                 self.board.selected_piece = None
 
+        if self.board.is_game_over():
+            return "GAMEOVER"
+
     def update(self):
         if self.board.is_game_over():
             return "GAMEOVER"  # Switch to game over state

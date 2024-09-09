@@ -1,6 +1,7 @@
 from app.game import is_in_bounds
 from .pieces import Piece
 from app import get_piece_asset_path
+from copy import deepcopy
 
 
 class King(Piece):
@@ -8,34 +9,39 @@ class King(Piece):
         sprite_path = get_piece_asset_path(colour, "King")
         super().__init__(position, colour, sprite_path, square_size)
 
-    def position_is_check(self, board: dict, new_position) -> bool:
-        """
-        Simulates moving the King to a new position and checks if the position is under attack.
-
-        :param board: The current state of the chess board.
-        :param new_position: The position to check for attack.
-        :return: True if the new position is in check, False otherwise.
-        """
-        original_piece = board.get(new_position, None)
-
-        # Simulate move
-        board.pop(self.position)
-        board[new_position] = self
-
-        # Check if any opposing piece can attack the new position
-        in_check = any(
-            piece.colour != self.colour and piece.can_attack(board, new_position)
-            for piece in board.values()
-        )
-
-        # Revert the simulated move
-        board[self.position] = self
-        if original_piece is not None:
-            board[new_position] = original_piece
-        else:
-            board.pop(new_position)
-
-        return in_check
+    # def position_is_check(self, board: dict, new_position) -> bool:
+    #     """
+    #     Simulates moving the King to a new position and checks if the position is under attack.
+    #
+    #     :param board: The current state of the chess board.
+    #     :param new_position: The position to check for attack.
+    #     :return: True if the new position is in check, False otherwise.
+    #     """
+    #     board_copy = deepcopy(board)
+    #
+    #     original_piece = board_copy.get(new_position, None)
+    #
+    #
+    #     # Simulate move
+    #     board_copy.pop(self.position)
+    #     board_copy[new_position] = self
+    #
+    #     # Check if any opposing piece can attack the new position
+    #     in_check = any(
+    #         piece.colour != self.colour and piece.can_attack(board_copy, new_position)
+    #         for piece in board_copy.values()
+    #     )
+    #
+    #     # Revert the simulated move
+    #     board_copy[self.position] = self
+    #     if original_piece is not None:
+    #         board_copy[new_position] = original_piece
+    #     else:
+    #         board_copy.pop(new_position)
+    #
+    #     del board_copy
+    #
+    #     return in_check
 
     def can_attack(self, board, target_position) -> bool:
         """
@@ -61,8 +67,8 @@ class King(Piece):
         ]
 
         # Filter out moves that would put the King in check
-        return [move for move in moves if not self.position_is_check(board, move)]
-
+        # return [move for move in moves if not self.position_is_check(board, move)]
+        return moves
     def _generate_king_moves(self) -> list:
         """
         Generates potential moves for the King, without considering checks.

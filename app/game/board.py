@@ -88,7 +88,7 @@ class Board:
             Knight: [(0, 1), (0, 6), (7, 1), (7, 6)],
             Bishop: [(0, 2), (0, 5), (7, 2), (7, 5)],
             Queen: [(0, 3), (7, 3)],
-            # King: [(0, 4), (7, 4)]
+            King: [(0, 4), (7, 4)]
         }
 
         for piece_class, positions in piece_positions.items():
@@ -97,23 +97,25 @@ class Board:
                 self._add_piece(piece_class, pos, colour)
         self.update_piece_move_list()
 
-    def update_piece_move_list(self):
-        threats = self.is_check(self.turn)
+    def update_piece_move_list(self, colour=None):
+        if colour is None:
+            colour = self.turn
+        threats = self.is_check(colour)
         BOARD_ALLOWED_MOVES = []
         if threats:
-            king_position = self.find_king(self.turn)
+            king_position = self.find_king(colour)
             for threat in threats:
                 BOARD_ALLOWED_MOVES.append(threat.position)
                 BOARD_ALLOWED_MOVES += get_positions_between(threat.position, king_position)
 
         # Need to update current turns moveset first
         for piece in self.board.values():
-            if piece.colour == self.turn:
+            if piece.colour == colour:
                 piece.update_moves(self.board, BOARD_ALLOWED_MOVES)
 
         # Then we update next turns moveset
         for piece in self.board.values():
-            if piece.colour != self.turn:
+            if piece.colour != colour:
                 piece.update_moves(self.board, [])
 
     def move_piece(self, piece, new_position):
@@ -131,6 +133,7 @@ class Board:
 
         if self.is_check(self.turn):
             print("Invalid move: Leaves game in check")
+
             self._revert_move(piece, new_position, old_position, current_piece)
             return
 
@@ -138,8 +141,10 @@ class Board:
         self._finalize_move(piece)
         self.is_checkmate()
 
-    def _simulate_move(self, piece, new_position):
+    def _simulate_move(self, piece, new_position, colour=None):
         """Simulates moving a piece and returns the piece at the new position."""
+        if colour is None:
+            colour = self.turn
         old_position = piece.position
         if new_position in self.board.keys():
             current_piece = self.board[new_position]
@@ -148,18 +153,20 @@ class Board:
         self.board.pop(old_position)
         self.board[new_position] = piece
         piece.position = new_position
-        self.update_piece_move_list()
+        self.update_piece_move_list(colour)
         return current_piece
 
-    def _revert_move(self, piece, new_position, old_position, current_piece):
+    def _revert_move(self, piece, new_position, old_position, current_piece, colour=None):
         """Reverts a simulated move."""
+        if colour is None:
+            colour = self.turn
         piece.position = old_position
         self.board[old_position] = piece
         if current_piece is not None:
             self.board[new_position] = current_piece
         else:
             self.board.pop(new_position)
-        self.update_piece_move_list()
+        self.update_piece_move_list(colour)
 
     def _finalize_move(self, piece):
         """Finalizes a valid move and switches the turn."""
@@ -199,7 +206,7 @@ class Board:
     def find_king(self, colour):
         """Finds the position of the king for a given colour."""
         for i, v in self.board.items():
-            if isinstance(v, King) and v.colour.value == colour:
+            if isinstance(v, King) and v.colour.value == colour.value:
                 return i
         return None
 
@@ -242,14 +249,16 @@ class Board:
         king_position = self.find_king(self.turn)
         king_piece = self.board[king_position]
 
+        other_colour = Colour.WHITE if self.turn == Colour.BLACK else Colour.BLACK
+
         if king_piece.move_list:
             new_move_list = []
             for move in king_piece.move_list:
-                kings_capture = self._simulate_move(king_piece, move)
+                kings_capture = self._simulate_move(king_piece, move, other_colour)
                 threats = self.is_check(self.turn)
                 if not threats:
                     new_move_list.append(move)
-                self._revert_move(king_piece, move, king_position, kings_capture)
+                self._revert_move(king_piece, move, king_position, kings_capture, other_colour)
 
             if new_move_list:
                 self.checkmate = False
