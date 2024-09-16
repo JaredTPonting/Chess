@@ -8,9 +8,10 @@ This project is a Python-based chess engine and game that supports most of the s
 
 - Full chess game functionality
 - Turn-based play with alternating white and black moves
-- **Valid moves**: All standard chess moves (except castling and en passant and promoting pawns)
+- **Valid moves**: All standard chess moves (except castling and en passant)
 - **Check and checkmate** detection
-- **Game states**: Check, checkmate
+- **Piece promotion**: Pawns can be promoted when reaching the opposite side of the board
+- **Game states**: Check, checkmate, stalemate detection
 - Graphical representation of the board and pieces using Pygame
 
 ## Upcoming Features (To-Do)
@@ -48,14 +49,14 @@ This project is a Python-based chess engine and game that supports most of the s
 ## How to Play
 
 - The game will open a Pygame window where you can play chess using your mouse.
-- Left-click to select a piece, and drag it to desired square.
+- Left-click to select a piece, and left-click again to move it to a valid square.
 - The game alternates between white and black turns, checking for legal moves.
 
 ## Game Rules Implemented
 
 - **Standard moves** for all pieces (pawns, knights, bishops, rooks, queens, kings)
 - **Checks and checkmates** are detected and enforced
-- **Stalemate detection**
+- **Pawn promotion** when a pawn reaches the last rank
 
 ### Missing Features (WIP)
 
