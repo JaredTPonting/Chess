@@ -49,7 +49,7 @@ This project is a Python-based chess engine and game that supports most of the s
 ## How to Play
 
 - The game will open a Pygame window where you can play chess using your mouse.
-- Left-click to select a piece, and left-click again to move it to a valid square.
+- Left-click to select a piece, hold and drag and drop to desired square.
 - The game alternates between white and black turns, checking for legal moves.
 
 ## Game Rules Implemented
