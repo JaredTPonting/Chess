@@ -33,6 +33,7 @@ class Board:
         self.check = False
         self.stalemate = False
         self.checkmate = False
+        self.en_passant_target = None
 
         # Configuration for chessboard border and square size
         self.border_ratio = 0.05
@@ -111,12 +112,12 @@ class Board:
         # Need to update current turns moveset first
         for piece in self.board.values():
             if piece.colour == colour:
-                piece.update_moves(self.board, BOARD_ALLOWED_MOVES)
+                piece.update_moves(self, BOARD_ALLOWED_MOVES)
 
         # Then we update next turns moveset
         for piece in self.board.values():
             if piece.colour != colour:
-                piece.update_moves(self.board, [])
+                piece.update_moves(self, [])
 
     def move_piece(self, piece, new_position):
         """Attempts to move a piece and handles check validation."""
@@ -137,9 +138,45 @@ class Board:
             self._revert_move(piece, new_position, old_position, current_piece)
             return
 
+        # Check for promotion if the piece is a Pawn and reached the promotion rank
+        if isinstance(piece, Pawn):
+            promotion_rank = 0 if piece.colour == Colour.WHITE else 7
+            if new_position[0] == promotion_rank:
+                self.promote_pawn(piece, new_position)
+
         # Execute the move and switch turns
         self._finalize_move(piece)
         self.is_checkmate()
+
+        if isinstance(piece, Pawn) and abs(new_position[0] - piece.position[0]) == 2:
+            # If the pawn moved two squares forward, set the en passant target to the square behind it
+            self.en_passant_target = (new_position[0] - piece.direction, new_position[1])
+        else:
+            # Reset the en passant target if no two-square move happened
+            self.en_passant_target = None
+
+    def promote_pawn(self, pawn, position):
+        """Promotes a pawn to another piece when it reaches the last rank."""
+        print(f"Pawn at {position} is being promoted!")
+
+        # Ask the user for promotion choice (can be expanded to a GUI later)
+        promotion_choice = input("Choose piece for promotion (Q=Queen, R=Rook, B=Bishop, K=Knight): ").upper()
+
+        if promotion_choice == 'Q':
+            new_piece = Queen(position=position, colour=pawn.colour, square_size=self.square_size_x)
+        elif promotion_choice == 'R':
+            new_piece = Rook(position=position, colour=pawn.colour, square_size=self.square_size_x)
+        elif promotion_choice == 'B':
+            new_piece = Bishop(position=position, colour=pawn.colour, square_size=self.square_size_x)
+        elif promotion_choice == 'K':
+            new_piece = Knight(position=position, colour=pawn.colour, square_size=self.square_size_x)
+        else:
+            print("Invalid choice! Defaulting to Queen.")
+            new_piece = Queen(position=position, colour=pawn.colour, square_size=self.square_size_x)
+
+        # Replace the pawn with the promoted piece
+        self.board[position] = new_piece
+        print(f"Pawn promoted to {new_piece.__class__.__name__}")
 
     def _simulate_move(self, piece, new_position, colour=None):
         """Simulates moving a piece and returns the piece at the new position."""
@@ -150,6 +187,9 @@ class Board:
             current_piece = self.board[new_position]
         else:
             current_piece = None
+
+        # if self.en_passant_target == new_position and isinstance(piece, Pawn):
+
         self.board.pop(old_position)
         self.board[new_position] = piece
         piece.position = new_position
@@ -223,7 +263,9 @@ class Board:
         return threats
 
     def can_capture(self, attacker):
-        """Checks if any piece can capture the given attacker."""
+        """Checks if any piece can capture the given attacker.
+            Used only to check for check
+        """
         for i, piece in self.board.items():
             if piece and piece.colour != attacker.colour and attacker.position in piece.move_list:
                 return True
@@ -236,7 +278,7 @@ class Board:
             for i, piece in self.board.items():
                 if piece and piece.colour == king.colour:
                     if any(move in positions_to_block for move in piece.move_list):
-                            return True
+                        return True
         return False
 
     def is_checkmate(self):
