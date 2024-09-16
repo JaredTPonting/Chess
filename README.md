@@ -1,5 +1,7 @@
 # Python Chess Engine
 
+This is my first attempt at a Chess engine. I have learnt a lot but have since decided to restart and build it again with a better structure.
+
 ## Overview
 
 This project is a Python-based chess engine and game that supports most of the standard chess rules. The game includes all chess pieces (King, Queen, Rook, Bishop, Knight, Pawn) and supports legal moves, including checks and checkmates. The engine allows users to play a full game of chess and includes a graphical user interface (GUI) built using Pygame.
